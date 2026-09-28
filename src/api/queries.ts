@@ -3,7 +3,13 @@
 import { useQuery } from '@tanstack/react-query';
 import { getApiKey } from '../auth/apiKey';
 import type { DateRange } from '../lib/dates';
-import { ApiError, getJson, type ProductStatus, type Summary } from './client';
+import {
+  ApiError,
+  getJson,
+  type ProductStats,
+  type Summary,
+  type Timeseries,
+} from './client';
 
 function rangeParams(range: DateRange) {
   return { start_date: range.start, end_date: range.end };
@@ -23,28 +29,39 @@ function requireKey(): string {
 export function useSummary(range: DateRange) {
   return useQuery({
     queryKey: ['metrics', 'summary', range],
-    queryFn: ({ signal }) => {
+    queryFn: ({ signal }) =>
       getJson<Summary>(
         '/metrics/summary',
         requireKey(),
         rangeParams(range),
         signal,
-      );
-    },
+      ),
+  });
+}
+
+export function useTimeseries(range: DateRange) {
+  return useQuery({
+    queryKey: ['metrics', 'timeseries', range],
+    queryFn: ({ signal }) =>
+      getJson<Timeseries>(
+        '/metrics/timeseries',
+        requireKey(),
+        rangeParams(range),
+        signal,
+      ),
   });
 }
 
 export function useProducts(range: DateRange, limit = 10) {
   return useQuery({
     queryKey: ['metrics', 'products', range, limit],
-    queryFn: ({ signal }) => {
-      getJson<ProductStatus>(
+    queryFn: ({ signal }) =>
+      getJson<ProductStats>(
         '/metrics/products',
         requireKey(),
         { ...rangeParams(range), limit },
         signal,
-      );
-    },
+      ),
   });
 }
 

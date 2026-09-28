@@ -28,7 +28,7 @@ function write(value: string | null): void {
   listeners.forEach(notify => notify());
 }
 
-export function saveApiKey(value: string | null): void {
+export function saveApiKey(value: string): void {
   write(value);
 }
 

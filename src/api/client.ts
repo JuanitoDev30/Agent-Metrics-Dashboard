@@ -1,11 +1,11 @@
 import type { components } from './schema';
 
 // Los tipos salen del backend
-type schemas = components['schemas'];
+type Schemas = components['schemas'];
 
-export type Summary = schemas['Summary'];
-export type Timeseries = schemas['Timeseries'];
-export type ProductStatus = schemas['ProductStats'];
+export type Summary = Schemas['Summary'];
+export type Timeseries = Schemas['Timeseries'];
+export type ProductStats = Schemas['ProductStats'];
 
 const BASE_URL = import.meta.env.VITE_API_URL;
 
@@ -48,7 +48,7 @@ export async function getJson<T>(
     if (error instanceof DOMException && error.name === 'AbortError')
       throw error;
     // Fetch solo falla si no hubo respuesta: backend apagado, url mal o cors
-    throw new ApiError(500, 'No se pudo conectar con el agente');
+    throw new ApiError(0, 'No se pudo conectar con el agente');
   }
 
   if (!response.ok) {
@@ -70,7 +70,7 @@ async function errorMessage(response: Response): Promise<string> {
     ) {
       return body.detail;
     }
-  } catch (error) {
+  } catch {
     // El cuerpo no era JSON
   }
   return response.statusText || `Error ${response.status}`;
