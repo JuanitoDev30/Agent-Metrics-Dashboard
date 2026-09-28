@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react';
-import { getJson, type Summary } from '../api/client';
+import { ApiError, getJson, type Summary } from '../api/client';
 import { saveApiKey } from './apiKey';
 
 export function LoginForm() {
@@ -37,7 +37,43 @@ export function LoginForm() {
         <p className="mt-1 text-sm text-ink-secondary">
           Inicia sesión para acceder al panel del agente.
         </p>
+
+        <label htmlFor="api-key" className="mt-6 block text-sm font-medium">
+          Clave
+        </label>
+
+        <input
+          id="api-key"
+          type="password"
+          value={key}
+          onChange={event => setKey(event.target.value)}
+          autoFocus
+          className="mt-1 w-full rounded-md border border-line bg-surface px-3 py-2 outline-none focus:border-accent"
+        />
+        {error && (
+          <p role="alert" className="mt-2 text-sm text-danger">
+            {error}
+          </p>
+        )}
+        <button
+          type="submit"
+          disabled={checking || !key.trim()}
+          className="mt-6 w-full rounded-md bg-accent px-3 py-2 text-sm font-medium text-white disabled:opacity-50"
+        >
+          {checking ? 'Comprobando…' : 'Entrar'}
+        </button>
       </form>
     </main>
   );
+}
+
+// cada error con un mensaje que le diga al usuario que hacer
+
+function loginError(error: unknown): string {
+  if (!(error instanceof ApiError)) return 'Ocurrio un error inesperado.';
+  if (error.status === 401) return 'Clave incorrecta.';
+  if (error.status === 0)
+    return 'No se pudo conectar con el servidor. Verifica si esta encendido';
+
+  return error.message;
 }
