@@ -32,8 +32,8 @@ export function toIsoDate(date: Date): string {
 
 
 // Lo inverso de toIsoDate. NO usar new Date('2026-09-28'): lo interpreta como
-  // medianoche UTC, que en Colombia es el 27 a las 7 de la noche.
-  export function parseIsoDate(iso: string): Date {
-    const [year, month, day] = iso.split('-').map(Number);
-    return new Date(year, month - 1, day);
-  }
+// medianoche UTC, que en Colombia es el 27 a las 7 de la noche.
+export function parseIsoDate(iso: string): Date {
+  const [year, month, day] = iso.split('-').map(Number);
+  return new Date(year, month - 1, day);
+}

@@ -44,6 +44,7 @@ export function useSummary(range: DateRange) {
 export function useTimeseries(range: DateRange) {
   return useQuery({
     queryKey: ['metrics', 'timeseries', range],
+    placeholderData: keepPreviousData,
     queryFn: ({ signal }) =>
       getJson<Timeseries>(
         '/metrics/timeseries',

@@ -68,7 +68,7 @@ export function formatUSD(value: string | null): string {
 
 const shortDay = new Intl.DateTimeFormat(LOCALE, { day: 'numeric', month: 'short' });
 
-  // "2026-09-28" -> "28 de sept"
-  export function formatDay(iso: string): string {
-    return shortDay.format(parseIsoDate(iso));
-  }
+// "2026-09-28" -> "28 de sept"
+export function formatDay(iso: string): string {
+  return shortDay.format(parseIsoDate(iso));
+}

@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { useSummary } from '../api/queries';
+import { useSummary, useTimeseries } from '../api/queries';
 import { clearApiKey } from '../auth/apiKey';
+import { DailyActivityChart } from '../components/DailyActivityChart';
 import { StatTitle } from '../components/StatTitle';
 import { lastDays, RANGE_PRESETS, type PresetDays } from '../lib/dates';
 import {
@@ -14,6 +15,7 @@ export function Dashboard() {
   const [days, setDays] = useState<PresetDays>(30);
   const range = lastDays(days);
   const summary = useSummary(range);
+  const timeseries = useTimeseries(range);
 
   return (
     <main className="mx-auto max-w-6xl p-4 sm:p-6">
@@ -60,7 +62,9 @@ export function Dashboard() {
       )}
 
       {summary.data && (
-        <section className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <section
+          className={`mt-6 grid grid-cols-1 gap-4 transition-opacity sm:grid-cols-2 lg:grid-cols-4 ${summary.isPlaceholderData ? 'opacity-60' : ''}`}
+        >
           <StatTitle
             label="Ventas netas"
             value={formatMoney(summary.data.orders.net_sales, true)}
@@ -101,6 +105,14 @@ export function Dashboard() {
             hint={`de ${formatCount(summary.data.cost.turns)} turnos`}
           />
         </section>
+      )}
+
+      {timeseries.data && (
+        <div
+          className={`mt-6 transition-opacity ${timeseries.isPlaceholderData ? 'opacity-60' : ''}`}
+        >
+          <DailyActivityChart points={timeseries.data.points} />
+        </div>
       )}
     </main>
   );
