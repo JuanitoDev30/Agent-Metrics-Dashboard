@@ -64,19 +64,17 @@ export function Dashboard() {
           <StatTitle
             label="Ventas netas"
             value={formatMoney(summary.data.orders.net_sales, true)}
-            hint={`${formatCount(summary.data.orders.placed)} pedidos · ${formatCount(summary.data.orders.cancelled)}
-  cancelados`}
+            hint={`${formatCount(summary.data.orders.placed)} pedidos · ${formatCount(summary.data.orders.cancelled)} cancelados`}
           />
           <StatTitle
             label="Conversaciones"
             value={formatCount(summary.data.funnel.conversations)}
-            hint={`${formatPercent(summary.data.funnel.conversion_rate ?? 0)} terminó en pedido`}
+            hint={`${formatPercent(summary.data.funnel.conversion_rate)} terminó en pedido`}
           />
           <StatTitle
             label="Clientes"
             value={formatCount(summary.data.customers.unique)}
-            hint={`${formatCount(summary.data.customers.new)} nuevos · ${formatCount(summary.data.customers.returning)}
-  recurrentes`}
+            hint={`${formatCount(summary.data.customers.new)} nuevos · ${formatCount(summary.data.customers.returning)} recurrentes`}
           />
           <StatTitle
             label="Ticket promedio"

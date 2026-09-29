@@ -70,10 +70,10 @@ export function LoginForm() {
 // cada error con un mensaje que le diga al usuario que hacer
 
 function loginError(error: unknown): string {
-  if (!(error instanceof ApiError)) return 'Ocurrio un error inesperado.';
+  if (!(error instanceof ApiError)) return 'Ocurrió un error inesperado.';
   if (error.status === 401) return 'Clave incorrecta.';
   if (error.status === 0)
-    return 'No se pudo conectar con el servidor. Verifica si esta encendido';
+    return 'No se pudo conectar con el servidor. Verifica si está encendido.';
 
   return error.message;
 }

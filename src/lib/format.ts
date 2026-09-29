@@ -52,7 +52,7 @@ export function formatCount(value: number, compact = false): string {
   return compact ? integerCompact.format(value) : integer.format(value);
 }
 
-export function formatPercent(ratio: number | number): string {
+export function formatPercent(ratio: number | null): string {
   return ratio === null ? EMPTY : percent.format(ratio);
 }
 
