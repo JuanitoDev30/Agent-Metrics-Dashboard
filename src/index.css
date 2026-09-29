@@ -17,6 +17,11 @@
   --color-ink-muted: #75746f;
   --color-accent: #2a78d6;
   --color-danger: #c4312f;
+  /* Graficos. Validados: contraste y separacion para daltonismo. */
+  --color-series-1: #2a78d6;
+  --color-series-2: #eb6834;
+  --color-grid: #e1e0d9;
+  --color-axis: #c3c2b7;
 }
 
 /* El modo oscuro es su propia seleccion de valores, no una inversion
@@ -31,6 +36,10 @@
     --color-ink-muted: #9a998f;
     --color-accent: #3987e5;
     --color-danger: #e66767;
+    --color-series-1: #3987e5;
+    --color-series-2: #d95926;
+    --color-grid: #2c2c2a;
+    --color-axis: #383835;
   }
 }
 

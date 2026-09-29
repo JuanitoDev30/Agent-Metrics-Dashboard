@@ -1,3 +1,6 @@
+import { parseIsoDate } from './dates';
+
+
 const LOCALE = 'es-CO';
 const CURRENCY = 'COP';
 
@@ -61,3 +64,11 @@ export function formatUSD(value: string | null): string {
   const amount = Number(value);
   return Number.isFinite(amount) ? usd.format(amount) : EMPTY;
 }
+
+
+const shortDay = new Intl.DateTimeFormat(LOCALE, { day: 'numeric', month: 'short' });
+
+  // "2026-09-28" -> "28 de sept"
+  export function formatDay(iso: string): string {
+    return shortDay.format(parseIsoDate(iso));
+  }

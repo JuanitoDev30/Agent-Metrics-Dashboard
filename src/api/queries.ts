@@ -1,8 +1,9 @@
 // Un hook por endpoint --> Esta es la capa que usan los componentes para hacer las peticiones a la API.
 
-import { useQuery } from '@tanstack/react-query';
+import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { getApiKey } from '../auth/apiKey';
 import type { DateRange } from '../lib/dates';
+
 import {
   ApiError,
   getJson,
@@ -29,6 +30,7 @@ function requireKey(): string {
 export function useSummary(range: DateRange) {
   return useQuery({
     queryKey: ['metrics', 'summary', range],
+    placeholderData: keepPreviousData,
     queryFn: ({ signal }) =>
       getJson<Summary>(
         '/metrics/summary',
