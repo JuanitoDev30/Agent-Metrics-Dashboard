@@ -22,6 +22,12 @@
   --color-series-2: #eb6834;
   --color-grid: #e1e0d9;
   --color-axis: #c3c2b7;
+  /* Embudo: un solo tono, de claro a oscuro. La ultima etapa (el pedido)
+     es la mas marcada. Validado como escala ordinal en claro y oscuro. */
+  --color-funnel-1: #6da7ec;
+  --color-funnel-2: #3987e5;
+  --color-funnel-3: #256abf;
+  --color-funnel-4: #184f95;
 }
 
 /* El modo oscuro es su propia seleccion de valores, no una inversion
@@ -40,6 +46,11 @@
     --color-series-2: #d95926;
     --color-grid: #2c2c2a;
     --color-axis: #383835;
+    /* En oscuro se invierte: lo mas marcado es lo mas claro. */
+    --color-funnel-1: #256abf;
+    --color-funnel-2: #3987e5;
+    --color-funnel-3: #6da7ec;
+    --color-funnel-4: #9ec5f4;
   }
 }
 

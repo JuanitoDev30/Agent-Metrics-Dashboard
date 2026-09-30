@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { useSummary, useTimeseries } from '../api/queries';
 import { clearApiKey } from '../auth/apiKey';
 import { DailyActivityChart } from '../components/DailyActivityChart';
+import { DailySalesChart } from '../components/DailySalesChart';
+import { FunnelChart } from '../components/FunnelChart';
 import { StatTitle } from '../components/StatTitle';
 import { lastDays, RANGE_PRESETS, type PresetDays } from '../lib/dates';
 import {
@@ -107,13 +109,19 @@ export function Dashboard() {
         </section>
       )}
 
-      {timeseries.data && (
-        <div
-          className={`mt-6 transition-opacity ${timeseries.isPlaceholderData ? 'opacity-60' : ''}`}
-        >
-          <DailyActivityChart points={timeseries.data.points} />
-        </div>
-      )}
+      <div
+        className={`mt-6 grid grid-cols-1 gap-4 transition-opacity lg:grid-cols-2 ${timeseries.isPlaceholderData || summary.isPlaceholderData ? 'opacity-60' : ''}`}
+      >
+        {timeseries.data && (
+          <>
+            <div className="lg:col-span-2">
+              <DailyActivityChart points={timeseries.data.points} />
+            </div>
+            <DailySalesChart points={timeseries.data.points} />
+          </>
+        )}
+        {summary.data && <FunnelChart funnel={summary.data.funnel} />}
+      </div>
     </main>
   );
 }
