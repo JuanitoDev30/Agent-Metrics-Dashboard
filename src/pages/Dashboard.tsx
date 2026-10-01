@@ -1,9 +1,10 @@
 import { useState } from 'react';
-import { useSummary, useTimeseries } from '../api/queries';
+import { useProducts, useSummary, useTimeseries } from '../api/queries';
 import { clearApiKey } from '../auth/apiKey';
 import { DailyActivityChart } from '../components/DailyActivityChart';
 import { DailySalesChart } from '../components/DailySalesChart';
 import { FunnelChart } from '../components/FunnelChart';
+import { ProductsSection } from '../components/ProductsSection';
 import { StatTitle } from '../components/StatTitle';
 import { lastDays, RANGE_PRESETS, type PresetDays } from '../lib/dates';
 import {
@@ -18,6 +19,7 @@ export function Dashboard() {
   const range = lastDays(days);
   const summary = useSummary(range);
   const timeseries = useTimeseries(range);
+  const products = useProducts(range, 5);
 
   return (
     <main className="mx-auto max-w-6xl p-4 sm:p-6">
@@ -122,6 +124,14 @@ export function Dashboard() {
         )}
         {summary.data && <FunnelChart funnel={summary.data.funnel} />}
       </div>
+
+      {products.data && (
+        <div
+          className={`transition-opacity ${products.isPlaceholderData ? 'opacity-60' : ''}`}
+        >
+          <ProductsSection stats={products.data} />
+        </div>
+      )}
     </main>
   );
 }

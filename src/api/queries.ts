@@ -58,6 +58,7 @@ export function useTimeseries(range: DateRange) {
 export function useProducts(range: DateRange, limit = 10) {
   return useQuery({
     queryKey: ['metrics', 'products', range, limit],
+    placeholderData: keepPreviousData,
     queryFn: ({ signal }) =>
       getJson<ProductStats>(
         '/metrics/products',
