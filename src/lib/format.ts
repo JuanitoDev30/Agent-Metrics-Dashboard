@@ -55,6 +55,17 @@ export function formatCount(value: number, compact = false): string {
   return compact ? integerCompact.format(value) : integer.format(value);
 }
 
+const decimal = new Intl.NumberFormat(LOCALE, { maximumFractionDigits: 1 });
+
+export function formatDecimal(value: number | null): string {
+  return value === null ? EMPTY : decimal.format(value);
+}
+
+// "1 unidad", "3 unidades"
+export function plural(count: number, one: string, many: string): string {
+  return `${formatCount(count)} ${count === 1 ? one : many}`;
+}
+
 export function formatPercent(ratio: number | null): string {
   return ratio === null ? EMPTY : percent.format(ratio);
 }

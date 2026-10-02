@@ -102,6 +102,71 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/metrics/operations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Operations
+         * @description Como trabajo el agente: resultado de los turnos, tokens y cache, herramientas
+         *     usadas y costo por dia.
+         */
+        get: operations["operations_metrics_operations_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/whatsapp/webhook": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Verify Webhook
+         * @description Handshake de Meta al registrar la URL en el panel.
+         *
+         *     Meta manda el verify token que uno pego alla; si coincide, se le devuelve
+         *     el `challenge` tal cual y la URL queda registrada.
+         */
+        get: operations["verify_webhook_whatsapp_webhook_get"];
+        put?: never;
+        /** Receive */
+        post: operations["receive_whatsapp_webhook_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/whatsapp/media/{name}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Media
+         * @description Reenvia una foto del backend para que Meta la pueda descargar.
+         */
+        get: operations["media_whatsapp_media__name__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/health": {
         parameters: {
             query?: never;
@@ -249,6 +314,40 @@ export interface components {
             /** Product Id */
             product_id?: string | null;
         };
+        /** OperationsDay */
+        OperationsDay: {
+            /**
+             * Day
+             * Format: date
+             */
+            day: string;
+            /** Turns */
+            turns: number;
+            /** Failed Turns */
+            failed_turns: number;
+            /** Cost Usd */
+            cost_usd: string | null;
+            /** Cache Hit Rate */
+            cache_hit_rate: number | null;
+        };
+        /**
+         * OperationsStats
+         * @description Como trabajo el agente, no que vendio: fallos, tokens, cache, herramientas.
+         */
+        OperationsStats: {
+            period: components["schemas"]["Period"];
+            /** Turns */
+            turns: number;
+            /** Outcomes */
+            outcomes: components["schemas"]["OutcomeCount"][];
+            /** Average Iterations */
+            average_iterations: number | null;
+            tokens: components["schemas"]["TokenStats"];
+            /** Tools */
+            tools: components["schemas"]["ToolCount"][];
+            /** Daily */
+            daily: components["schemas"]["OperationsDay"][];
+        };
         /** OrderStats */
         OrderStats: {
             /** Placed */
@@ -261,6 +360,13 @@ export interface components {
             net_sales: string;
             /** Average Ticket */
             average_ticket: string | null;
+        };
+        /** OutcomeCount */
+        OutcomeCount: {
+            /** Outcome */
+            outcome: string;
+            /** Turns */
+            turns: number;
         };
         /**
          * Period
@@ -373,6 +479,31 @@ export interface components {
             /** Points */
             points: components["schemas"]["DayPoint"][];
         };
+        /**
+         * TokenStats
+         * @description Los cuatro cubos de tokens del periodo, sumados.
+         */
+        TokenStats: {
+            /** Input */
+            input: number;
+            /** Output */
+            output: number;
+            /** Cache Read */
+            cache_read: number;
+            /** Cache Write */
+            cache_write: number;
+            /** Cache Hit Rate */
+            cache_hit_rate: number | null;
+        };
+        /** ToolCount */
+        ToolCount: {
+            /** Tool */
+            tool: string;
+            /** Calls */
+            calls: number;
+            /** Turns */
+            turns: number;
+        };
         /** ValidationError */
         ValidationError: {
             /** Location */
@@ -464,6 +595,8 @@ export interface operations {
     summary_metrics_summary_get: {
         parameters: {
             query?: {
+                /** @description Solo las conversaciones de este canal: web, whatsapp. Por defecto, todas. */
+                channel?: string | null;
                 /** @description Primer dia, incluido. Por defecto, hace 29 dias. */
                 start_date?: string | null;
                 /** @description Ultimo dia, incluido. Por defecto, hoy. */
@@ -498,6 +631,8 @@ export interface operations {
     timeseries_metrics_timeseries_get: {
         parameters: {
             query?: {
+                /** @description Solo las conversaciones de este canal: web, whatsapp. Por defecto, todas. */
+                channel?: string | null;
                 /** @description Primer dia, incluido. Por defecto, hace 29 dias. */
                 start_date?: string | null;
                 /** @description Ultimo dia, incluido. Por defecto, hoy. */
@@ -533,6 +668,8 @@ export interface operations {
         parameters: {
             query?: {
                 limit?: number;
+                /** @description Solo las conversaciones de este canal: web, whatsapp. Por defecto, todas. */
+                channel?: string | null;
                 /** @description Primer dia, incluido. Por defecto, hace 29 dias. */
                 start_date?: string | null;
                 /** @description Ultimo dia, incluido. Por defecto, hoy. */
@@ -551,6 +688,128 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ProductStats"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    operations_metrics_operations_get: {
+        parameters: {
+            query?: {
+                /** @description Solo las conversaciones de este canal: web, whatsapp. Por defecto, todas. */
+                channel?: string | null;
+                /** @description Primer dia, incluido. Por defecto, hace 29 dias. */
+                start_date?: string | null;
+                /** @description Ultimo dia, incluido. Por defecto, hoy. */
+                end_date?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OperationsStats"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    verify_webhook_whatsapp_webhook_get: {
+        parameters: {
+            query?: {
+                "hub.mode"?: string;
+                "hub.verify_token"?: string;
+                "hub.challenge"?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/plain": string;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    receive_whatsapp_webhook_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: string;
+                    };
+                };
+            };
+        };
+    };
+    media_whatsapp_media__name__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                name: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
                 };
             };
             /** @description Validation Error */

@@ -2,18 +2,24 @@
 
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { getApiKey } from '../auth/apiKey';
+import type { Channel } from '../lib/channels';
 import type { DateRange } from '../lib/dates';
 
 import {
   ApiError,
   getJson,
+  type Operations,
   type ProductStats,
   type Summary,
   type Timeseries,
 } from './client';
 
-function rangeParams(range: DateRange) {
-  return { start_date: range.start, end_date: range.end };
+// El rango y el canal: lo que filtra a todos los endpoints. Sin canal, el
+// parametro no viaja y el backend cuenta todos.
+type Filters = { range: DateRange; channel?: Channel };
+
+function filterParams({ range, channel }: Filters) {
+  return { start_date: range.start, end_date: range.end, channel };
 }
 
 function requireKey(): string {
@@ -24,46 +30,61 @@ function requireKey(): string {
   return key;
 }
 
-// la queryKey identifica la respuesta en la cache. Incluye el rango porque
-// 'resumen de 7 dias' y 'resumen de 30 dias' son datos distintos
+// la queryKey identifica la respuesta en la cache. Incluye los filtros porque
+// 'resumen de 7 dias' y 'resumen de 30 dias' son datos distintos, y el de
+// WhatsApp no es el de la web
 
-export function useSummary(range: DateRange) {
+export function useSummary(filters: Filters) {
   return useQuery({
-    queryKey: ['metrics', 'summary', range],
+    queryKey: ['metrics', 'summary', filters],
     placeholderData: keepPreviousData,
     queryFn: ({ signal }) =>
       getJson<Summary>(
         '/metrics/summary',
         requireKey(),
-        rangeParams(range),
+        filterParams(filters),
         signal,
       ),
   });
 }
 
-export function useTimeseries(range: DateRange) {
+export function useTimeseries(filters: Filters) {
   return useQuery({
-    queryKey: ['metrics', 'timeseries', range],
+    queryKey: ['metrics', 'timeseries', filters],
     placeholderData: keepPreviousData,
     queryFn: ({ signal }) =>
       getJson<Timeseries>(
         '/metrics/timeseries',
         requireKey(),
-        rangeParams(range),
+        filterParams(filters),
         signal,
       ),
   });
 }
 
-export function useProducts(range: DateRange, limit = 10) {
+export function useProducts(filters: Filters, limit = 10) {
   return useQuery({
-    queryKey: ['metrics', 'products', range, limit],
+    queryKey: ['metrics', 'products', filters, limit],
     placeholderData: keepPreviousData,
     queryFn: ({ signal }) =>
       getJson<ProductStats>(
         '/metrics/products',
         requireKey(),
-        { ...rangeParams(range), limit },
+        { ...filterParams(filters), limit },
+        signal,
+      ),
+  });
+}
+
+export function useOperations(filters: Filters) {
+  return useQuery({
+    queryKey: ['metrics', 'operations', filters],
+    placeholderData: keepPreviousData,
+    queryFn: ({ signal }) =>
+      getJson<Operations>(
+        '/metrics/operations',
+        requireKey(),
+        filterParams(filters),
         signal,
       ),
   });

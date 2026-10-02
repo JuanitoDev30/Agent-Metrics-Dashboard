@@ -1,11 +1,19 @@
 import { useState } from 'react';
-import { useProducts, useSummary, useTimeseries } from '../api/queries';
+import {
+  useOperations,
+  useProducts,
+  useSummary,
+  useTimeseries,
+} from '../api/queries';
 import { clearApiKey } from '../auth/apiKey';
 import { DailyActivityChart } from '../components/DailyActivityChart';
 import { DailySalesChart } from '../components/DailySalesChart';
 import { FunnelChart } from '../components/FunnelChart';
+import { OperationsSection } from '../components/OperationsSection';
 import { ProductsSection } from '../components/ProductsSection';
+import { Segmented } from '../components/Segmented';
 import { StatTitle } from '../components/StatTitle';
+import { CHANNEL_OPTIONS, type Channel } from '../lib/channels';
 import { lastDays, RANGE_PRESETS, type PresetDays } from '../lib/dates';
 import {
   formatCount,
@@ -16,10 +24,13 @@ import {
 
 export function Dashboard() {
   const [days, setDays] = useState<PresetDays>(30);
-  const range = lastDays(days);
-  const summary = useSummary(range);
-  const timeseries = useTimeseries(range);
-  const products = useProducts(range, 5);
+  const [channel, setChannel] = useState<Channel | undefined>(undefined);
+  const filters = { range: lastDays(days), channel };
+  const { range } = filters;
+  const summary = useSummary(filters);
+  const timeseries = useTimeseries(filters);
+  const products = useProducts(filters, 5);
+  const operations = useOperations(filters);
 
   return (
     <main className="mx-auto max-w-6xl p-4 sm:p-6">
@@ -31,20 +42,22 @@ export function Dashboard() {
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
-          <div className="flex rounded-md border border-line bg-surface-raised p-0.5">
-            {RANGE_PRESETS.map(preset => (
-              <button
-                key={preset.days}
-                type="button"
-                aria-pressed={days === preset.days}
-                onClick={() => setDays(preset.days)}
-                className="rounded px-3 py-1 text-sm text-ink-secondary aria-pressed:bg-accent aria-pressed:text-white"
-              >
-                {preset.label}
-              </button>
-            ))}
-          </div>
+        <div className="flex flex-wrap items-center gap-3">
+          <Segmented
+            label="Canal"
+            options={CHANNEL_OPTIONS}
+            value={channel}
+            onChange={setChannel}
+          />
+          <Segmented
+            label="Período"
+            options={RANGE_PRESETS.map(preset => ({
+              value: preset.days,
+              label: preset.label,
+            }))}
+            value={days}
+            onChange={setDays}
+          />
           <button
             type="button"
             onClick={clearApiKey}
@@ -130,6 +143,14 @@ export function Dashboard() {
           className={`transition-opacity ${products.isPlaceholderData ? 'opacity-60' : ''}`}
         >
           <ProductsSection stats={products.data} />
+        </div>
+      )}
+
+      {operations.data && (
+        <div
+          className={`transition-opacity ${operations.isPlaceholderData ? 'opacity-60' : ''}`}
+        >
+          <OperationsSection stats={operations.data} />
         </div>
       )}
     </main>

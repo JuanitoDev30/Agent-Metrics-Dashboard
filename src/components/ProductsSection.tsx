@@ -1,12 +1,8 @@
 import type { ProductStats } from '../api/client';
-import { formatCount } from '../lib/format';
+import { plural } from '../lib/format';
 import { RankedList, type RankedItem } from './RankedList';
 
 type ProductCount = ProductStats['most_ordered'][number];
-
-function plural(count: number, one: string, many: string): string {
-  return `${formatCount(count)} ${count === 1 ? one : many}`;
-}
 
 function conversationsDetail(count: number): string {
   return `en ${plural(count, 'conversación', 'conversaciones')}`;

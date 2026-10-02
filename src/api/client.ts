@@ -6,6 +6,7 @@ type Schemas = components['schemas'];
 export type Summary = Schemas['Summary'];
 export type Timeseries = Schemas['Timeseries'];
 export type ProductStats = Schemas['ProductStats'];
+export type Operations = Schemas['OperationsStats'];
 
 const BASE_URL = import.meta.env.VITE_API_URL;
 
