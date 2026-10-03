@@ -115,6 +115,14 @@ export function formatTime(timestamp: number): string {
   return clock.format(timestamp);
 }
 
-export function formatDate(timestamp: number): string {
-  return clock.format(timestamp);
+
+const change = new Intl.NumberFormat(LOCALE, {
+  style: 'percent',
+  maximumFractionDigits: 0,
+  // "+12 %" y "-8 %": el signo es la mitad del mensaje.
+  signDisplay: 'exceptZero',
+});
+
+export function formatChange(ratio: number): string {
+  return change.format(ratio);
 }

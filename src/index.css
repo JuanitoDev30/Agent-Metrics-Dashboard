@@ -17,6 +17,7 @@
   --color-ink-muted: #75746f;
   --color-accent: #2a78d6;
   --color-danger: #c4312f;
+  --color-success: #1f7a3d;
   /* Graficos. Validados: contraste y separacion para daltonismo. */
   --color-series-1: #2a78d6;
   --color-series-2: #eb6834;
@@ -42,6 +43,7 @@
     --color-ink-muted: #9a998f;
     --color-accent: #3987e5;
     --color-danger: #e66767;
+    --color-success: #5cc98a;
     --color-series-1: #3987e5;
     --color-series-2: #d95926;
     --color-grid: #2c2c2a;

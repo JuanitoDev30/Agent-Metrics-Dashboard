@@ -123,6 +123,27 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/metrics/heatmap": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Heatmap
+         * @description Conversaciones y turnos por dia de la semana y hora, en la hora del negocio:
+         *     cuando hace falta mas gente atendiendo.
+         */
+        get: operations["heatmap_metrics_heatmap_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/whatsapp/webhook": {
         parameters: {
             query?: never;
@@ -312,6 +333,28 @@ export interface components {
             total: number;
             /** By Kind */
             by_kind: components["schemas"]["HandoffCount"][];
+        };
+        /** HeatCell */
+        HeatCell: {
+            /** Weekday */
+            weekday: number;
+            /** Hour */
+            hour: number;
+            /** Conversations */
+            conversations: number;
+            /** Turns */
+            turns: number;
+            /** Days */
+            days: number;
+        };
+        /**
+         * Heatmap
+         * @description Cuando escriben los clientes: dia de la semana por hora.
+         */
+        Heatmap: {
+            period: components["schemas"]["Period"];
+            /** Cells */
+            cells: components["schemas"]["HeatCell"][];
         };
         /**
          * ImageView
@@ -773,6 +816,42 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["OperationsStats"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    heatmap_metrics_heatmap_get: {
+        parameters: {
+            query?: {
+                /** @description Solo las conversaciones de este canal: web, whatsapp. Por defecto, todas. */
+                channel?: string | null;
+                /** @description Primer dia, incluido. Por defecto, hace 29 dias. */
+                start_date?: string | null;
+                /** @description Ultimo dia, incluido. Por defecto, hoy. */
+                end_date?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Heatmap"];
                 };
             };
             /** @description Validation Error */

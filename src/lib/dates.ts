@@ -71,3 +71,14 @@ export function parseIsoDate(iso: string): Date {
   const [year, month, day] = iso.split('-').map(Number);
   return new Date(year, month - 1, day);
 }
+
+// El periodo de la misma longitud que termina justo antes de que empiece este:
+// del 1 al 30 de septiembre -> del 2 al 31 de agosto.
+export function previousRange(range: DateRange): DateRange {
+  const days = countDays(range);
+  const end = parseIsoDate(range.start);
+  end.setDate(end.getDate() - 1);
+  const start = new Date(end);
+  start.setDate(end.getDate() - (days - 1));
+  return { start: toIsoDate(start), end: toIsoDate(end) };
+}

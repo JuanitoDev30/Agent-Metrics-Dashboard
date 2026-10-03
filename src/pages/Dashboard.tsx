@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import {
   useOperations,
   useProducts,
@@ -15,19 +14,21 @@ import { Segmented } from '../components/Segmented';
 import { StatTitle } from '../components/StatTitle';
 import { CustomRangeForm } from '../components/CustomRangeForm';
 import { RefreshButton } from '../components/RefreshButton';
-import { CHANNEL_OPTIONS, type Channel } from '../lib/channels';
+import { CHANNEL_OPTIONS } from '../lib/channels';
 import {
   RANGE_PRESETS,
   resolveRange,
   type PresetDays,
-  type RangeSelection,
+  previousRange,
 } from '../lib/dates';
+import { changeRatio } from '../lib/compare';
 import {
   formatCount,
   formatMoney,
   formatPercent,
   formatUSD,
 } from '../lib/format';
+import { useURLFilters } from '../lib/url/urlFilters';
 
 // Los atajos mas una opcion para elegir las fechas a mano. El tipo va
 // explicito porque mezcla numeros (los dias) con el texto 'custom'.
@@ -39,11 +40,7 @@ const PERIOD_OPTIONS: { value: PeriodOption; label: string }[] = [
 ];
 
 export function Dashboard() {
-  const [selection, setSelection] = useState<RangeSelection>({
-    kind: 'preset',
-    days: 30,
-  });
-  const [channel, setChannel] = useState<Channel | undefined>(undefined);
+  const { selection, setSelection, channel, setChannel } = useURLFilters();
   const range = resolveRange(selection);
   // Con el tipo anotado: si no, TypeScript lee 'custom' como un string
   // cualquiera y deja de saber que solo puede ser eso o un numero de dias.
@@ -54,6 +51,11 @@ export function Dashboard() {
   const timeseries = useTimeseries(filters);
   const products = useProducts(filters, 5);
   const operations = useOperations(filters);
+
+  // El mismo resumen, del periodo anterior de igual largo. Es otra queryKey,
+  // asi que se cachea aparte y no pisa al actual.
+  const previous = useSummary({ range: previousRange(range), channel });
+  const before = previous.data;
 
   return (
     <main className="mx-auto max-w-6xl p-4 sm:p-6">
@@ -122,40 +124,96 @@ export function Dashboard() {
             label="Ventas netas"
             value={formatMoney(summary.data.orders.net_sales, true)}
             hint={`${formatCount(summary.data.orders.placed)} pedidos · ${formatCount(summary.data.orders.cancelled)} cancelados`}
+            change={
+              before &&
+              changeRatio(
+                summary.data.orders.net_sales,
+                before.orders.net_sales,
+              )
+            }
           />
           <StatTitle
             label="Conversaciones"
             value={formatCount(summary.data.funnel.conversations)}
             hint={`${formatPercent(summary.data.funnel.conversion_rate)} terminó en pedido`}
+            change={
+              before &&
+              changeRatio(
+                summary.data.funnel.conversations,
+                before.funnel.conversations,
+              )
+            }
           />
           <StatTitle
             label="Clientes"
             value={formatCount(summary.data.customers.unique)}
             hint={`${formatCount(summary.data.customers.new)} nuevos · ${formatCount(summary.data.customers.returning)} recurrentes`}
+            change={
+              before &&
+              changeRatio(
+                summary.data.customers.unique,
+                before.customers.unique,
+              )
+            }
           />
           <StatTitle
             label="Ticket promedio"
             value={formatMoney(summary.data.orders.average_ticket)}
+            change={
+              before &&
+              changeRatio(
+                summary.data.orders.average_ticket,
+                before.orders.average_ticket,
+              )
+            }
           />
           <StatTitle
             label="Reservas"
             value={formatCount(summary.data.reservations.placed)}
             hint={`${formatCount(summary.data.reservations.guests)} personas`}
+            change={
+              before &&
+              changeRatio(
+                summary.data.reservations.placed,
+                before.reservations.placed,
+              )
+            }
           />
           <StatTitle
             label="Carritos abandonados"
             value={formatCount(summary.data.funnel.abandoned_carts)}
             hint={`de ${formatCount(summary.data.funnel.with_cart)} con carrito`}
+            change={
+              before &&
+              changeRatio(
+                summary.data.funnel.abandoned_carts,
+                before.funnel.abandoned_carts,
+              )
+            }
+            better="down"
           />
           <StatTitle
             label="Costo del agente"
             value={formatUSD(summary.data.cost.total_usd)}
             hint={`${formatUSD(summary.data.cost.per_conversation_usd)} por conversación`}
+            change={
+              before &&
+              changeRatio(summary.data.cost.total_usd, before.cost.total_usd)
+            }
+            better="neutral"
           />
           <StatTitle
             label="Turnos con problemas"
             value={formatCount(summary.data.cost.failed_turns)}
             hint={`de ${formatCount(summary.data.cost.turns)} turnos`}
+            change={
+              before &&
+              changeRatio(
+                summary.data.cost.failed_turns,
+                before.cost.failed_turns,
+              )
+            }
+            better="down"
           />
         </section>
       )}
