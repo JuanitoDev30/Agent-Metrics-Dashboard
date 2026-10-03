@@ -2,7 +2,9 @@ import type { Operations } from '../api/client';
 import {
   formatCount,
   formatDecimal,
+  formatDuration,
   formatPercent,
+  formatUSD,
   plural,
 } from '../lib/format';
 import { CacheHitChart } from './CacheHitChart';
@@ -19,10 +21,18 @@ const OUTCOME_LABELS: Record<string, string> = {
   rechazo: 'El modelo se negó a responder',
 };
 
+const HANDOFF_LABELS: Record<string, string> = {
+  pide_persona: 'El cliente pidió hablar con alguien',
+  reclamo: 'El cliente hizo un reclamo',
+  fuera_de_alcance: 'Algo que el agente no puede resolver',
+};
+
 export function OperationsSection({ stats }: { stats: Operations }) {
   const { tokens } = stats;
-  const failed = stats.turns - (stats.outcomes.find(o => o.outcome === 'ok')?.turns ?? 0);
-  const totalTokens = tokens.input + tokens.output + tokens.cache_read + tokens.cache_write;
+  const failed =
+    stats.turns - (stats.outcomes.find(o => o.outcome === 'ok')?.turns ?? 0);
+  const totalTokens =
+    tokens.input + tokens.output + tokens.cache_read + tokens.cache_write;
 
   const outcomes: RankedItem[] = stats.outcomes.map(outcome => ({
     id: outcome.outcome,
@@ -39,6 +49,23 @@ export function OperationsSection({ stats }: { stats: Operations }) {
     value: tool.calls,
     valueText: plural(tool.calls, 'llamada', 'llamadas'),
     detail: `en ${plural(tool.turns, 'turno', 'turnos')}`,
+  }));
+
+  const { latency, handoffs, voice_notes: voice } = stats;
+
+  const handoffKinds: RankedItem[] = handoffs.by_kind.map(item => ({
+    id: item.kind,
+    label: HANDOFF_LABELS[item.kind] ?? item.kind,
+    value: item.handoffs,
+    valueText: plural(item.handoffs, 'vez', 'veces'),
+  }));
+
+  const models: RankedItem[] = stats.models.map(item => ({
+    id: item.model,
+    label: item.model,
+    value: item.turns,
+    valueText: plural(item.turns, 'turno', 'turnos'),
+    detail: `${formatUSD(item.cost_usd)} en total`,
   }));
 
   return (
@@ -71,6 +98,36 @@ export function OperationsSection({ stats }: { stats: Operations }) {
         />
       </div>
 
+      <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <StatTitle
+          label="Tiempo de respuesta"
+          value={formatDuration(latency.p50_seconds)}
+          hint={
+            latency.measured_turns
+              ? `1 de cada 10 espera más de ${formatDuration(latency.p90_seconds)}`
+              : 'Sin turnos medidos todavía'
+          }
+        />
+        <StatTitle
+          label="Pasados a una persona"
+          value={formatCount(handoffs.total)}
+          hint={
+            stats.turns
+              ? `${formatPercent(handoffs.total / stats.turns)} de los turnos`
+              : undefined
+          }
+        />
+        <StatTitle
+          label="Notas de voz"
+          value={formatCount(voice.notes)}
+          hint={
+            voice.notes
+              ? `${formatCount(voice.transcribed)} entendidas · ${formatDuration(voice.transcribed_seconds)} de audio`
+              : undefined
+          }
+        />
+      </div>
+
       <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-2">
         <DailyCostChart days={stats.daily} />
         <CacheHitChart days={stats.daily} />
@@ -85,6 +142,18 @@ export function OperationsSection({ stats }: { stats: Operations }) {
           subtitle="Llamadas del modelo a cada herramienta del agente"
           items={tools}
           emptyText="El agente no usó herramientas en este período."
+        />
+        <RankedList
+          title="Por qué se pasó a una persona"
+          subtitle="Lo que el agente no pudo o no debía resolver solo"
+          items={handoffKinds}
+          emptyText="Ninguna conversación pasó a una persona en este período."
+        />
+        <RankedList
+          title="Uso por modelo"
+          subtitle="Turnos atendidos por cada modelo y lo que costaron"
+          items={models}
+          emptyText="Todavía no hay turnos con el modelo registrado."
         />
       </div>
     </section>

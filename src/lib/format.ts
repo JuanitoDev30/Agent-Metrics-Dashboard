@@ -1,6 +1,5 @@
 import { parseIsoDate } from './dates';
 
-
 const LOCALE = 'es-CO';
 const CURRENCY = 'COP';
 
@@ -38,9 +37,28 @@ const usd = new Intl.NumberFormat(LOCALE, {
   maximumFractionDigits: 4,
 });
 
+const seconds = new Intl.NumberFormat(LOCALE, {
+  style: 'unit',
+  unit: 'second',
+  maximumFractionDigits: 1,
+  unitDisplay: 'narrow',
+});
+
+const minutes = new Intl.NumberFormat(LOCALE, {
+  style: 'unit',
+  unit: 'minute',
+  unitDisplay: 'narrow',
+  maximumFractionDigits: 1,
+});
+
 // lo que se muestra cuando no hay dato. Un guion, no un cero
 
 export const EMPTY = '—';
+
+const clock = new Intl.DateTimeFormat(LOCALE, {
+  hour: 'numeric',
+  minute: '2-digit',
+});
 
 // el backend manda el dinero como texto: se convierte aqui
 
@@ -76,10 +94,27 @@ export function formatUSD(value: string | null): string {
   return Number.isFinite(amount) ? usd.format(amount) : EMPTY;
 }
 
-
-const shortDay = new Intl.DateTimeFormat(LOCALE, { day: 'numeric', month: 'short' });
+const shortDay = new Intl.DateTimeFormat(LOCALE, {
+  day: 'numeric',
+  month: 'short',
+});
 
 // "2026-09-28" -> "28 de sept"
 export function formatDay(iso: string): string {
   return shortDay.format(parseIsoDate(iso));
+}
+
+export function formatDuration(value: number | string | null): string {
+  if (value === null) return EMPTY;
+  const total = Number(value);
+  if (!Number.isFinite(total)) return EMPTY;
+  return total < 60 ? seconds.format(total) : minutes.format(total / 60);
+}
+
+export function formatTime(timestamp: number): string {
+  return clock.format(timestamp);
+}
+
+export function formatDate(timestamp: number): string {
+  return clock.format(timestamp);
 }

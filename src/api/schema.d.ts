@@ -299,6 +299,20 @@ export interface components {
             /** Detail */
             detail?: components["schemas"]["ValidationError"][];
         };
+        /** HandoffCount */
+        HandoffCount: {
+            /** Kind */
+            kind: string;
+            /** Handoffs */
+            handoffs: number;
+        };
+        /** HandoffStats */
+        HandoffStats: {
+            /** Total */
+            total: number;
+            /** By Kind */
+            by_kind: components["schemas"]["HandoffCount"][];
+        };
         /**
          * ImageView
          * @description Una imagen que acompana la respuesta.
@@ -313,6 +327,27 @@ export interface components {
             caption?: string | null;
             /** Product Id */
             product_id?: string | null;
+        };
+        /**
+         * LatencyStats
+         * @description Cuanto espero el cliente por la respuesta: modelo, herramientas y backend.
+         */
+        LatencyStats: {
+            /** Measured Turns */
+            measured_turns: number;
+            /** P50 Seconds */
+            p50_seconds: number | null;
+            /** P90 Seconds */
+            p90_seconds: number | null;
+        };
+        /** ModelCount */
+        ModelCount: {
+            /** Model */
+            model: string;
+            /** Turns */
+            turns: number;
+            /** Cost Usd */
+            cost_usd: string | null;
         };
         /** OperationsDay */
         OperationsDay: {
@@ -345,6 +380,11 @@ export interface components {
             tokens: components["schemas"]["TokenStats"];
             /** Tools */
             tools: components["schemas"]["ToolCount"][];
+            latency: components["schemas"]["LatencyStats"];
+            /** Models */
+            models: components["schemas"]["ModelCount"][];
+            handoffs: components["schemas"]["HandoffStats"];
+            voice_notes: components["schemas"]["VoiceStats"];
             /** Daily */
             daily: components["schemas"]["OperationsDay"][];
         };
@@ -516,6 +556,15 @@ export interface components {
             input?: unknown;
             /** Context */
             ctx?: Record<string, never>;
+        };
+        /** VoiceStats */
+        VoiceStats: {
+            /** Notes */
+            notes: number;
+            /** Transcribed */
+            transcribed: number;
+            /** Transcribed Seconds */
+            transcribed_seconds: string;
         };
     };
     responses: never;

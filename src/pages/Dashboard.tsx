@@ -13,8 +13,15 @@ import { OperationsSection } from '../components/OperationsSection';
 import { ProductsSection } from '../components/ProductsSection';
 import { Segmented } from '../components/Segmented';
 import { StatTitle } from '../components/StatTitle';
+import { CustomRangeForm } from '../components/CustomRangeForm';
+import { RefreshButton } from '../components/RefreshButton';
 import { CHANNEL_OPTIONS, type Channel } from '../lib/channels';
-import { lastDays, RANGE_PRESETS, type PresetDays } from '../lib/dates';
+import {
+  RANGE_PRESETS,
+  resolveRange,
+  type PresetDays,
+  type RangeSelection,
+} from '../lib/dates';
 import {
   formatCount,
   formatMoney,
@@ -22,11 +29,27 @@ import {
   formatUSD,
 } from '../lib/format';
 
+// Los atajos mas una opcion para elegir las fechas a mano. El tipo va
+// explicito porque mezcla numeros (los dias) con el texto 'custom'.
+type PeriodOption = PresetDays | 'custom';
+
+const PERIOD_OPTIONS: { value: PeriodOption; label: string }[] = [
+  ...RANGE_PRESETS.map(preset => ({ value: preset.days, label: preset.label })),
+  { value: 'custom', label: 'Personalizado' },
+];
+
 export function Dashboard() {
-  const [days, setDays] = useState<PresetDays>(30);
+  const [selection, setSelection] = useState<RangeSelection>({
+    kind: 'preset',
+    days: 30,
+  });
   const [channel, setChannel] = useState<Channel | undefined>(undefined);
-  const filters = { range: lastDays(days), channel };
-  const { range } = filters;
+  const range = resolveRange(selection);
+  // Con el tipo anotado: si no, TypeScript lee 'custom' como un string
+  // cualquiera y deja de saber que solo puede ser eso o un numero de dias.
+  const period: PeriodOption =
+    selection.kind === 'preset' ? selection.days : 'custom';
+  const filters = { range, channel };
   const summary = useSummary(filters);
   const timeseries = useTimeseries(filters);
   const products = useProducts(filters, 5);
@@ -51,13 +74,19 @@ export function Dashboard() {
           />
           <Segmented
             label="Período"
-            options={RANGE_PRESETS.map(preset => ({
-              value: preset.days,
-              label: preset.label,
-            }))}
-            value={days}
-            onChange={setDays}
+            options={PERIOD_OPTIONS}
+            value={period}
+            onChange={option =>
+              // Al pasar a personalizado se arranca con el rango que se estaba
+              // viendo: los datos no cambian hasta que se aplique otro.
+              setSelection(
+                option === 'custom'
+                  ? { kind: 'custom', ...range }
+                  : { kind: 'preset', days: option },
+              )
+            }
           />
+          <RefreshButton updatedAt={summary.dataUpdatedAt} />
           <button
             type="button"
             onClick={clearApiKey}
@@ -67,6 +96,13 @@ export function Dashboard() {
           </button>
         </div>
       </header>
+
+      {selection.kind === 'custom' && (
+        <CustomRangeForm
+          initial={range}
+          onApply={applied => setSelection({ kind: 'custom', ...applied })}
+        />
+      )}
 
       {summary.isPending && (
         <p className="mt-8 text-ink-secondary">Cargando…</p>

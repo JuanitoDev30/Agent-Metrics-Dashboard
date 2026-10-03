@@ -18,6 +18,7 @@ export const queryClient = new QueryClient({
       staleTime: 60_000,
       // Reintentar solo lo que puede arreglarse solo: sin conexion (0) o
       // error de servidor (5xx)
+      refetchInterval: 5 * 60_000,
       retry: (failureCount, error) => {
         if (error instanceof ApiError && error.status > 0 && error.status < 500)
           return false;
