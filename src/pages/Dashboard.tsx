@@ -1,4 +1,5 @@
 import {
+  useHeatmap,
   useOperations,
   useProducts,
   useSummary,
@@ -14,6 +15,7 @@ import { Segmented } from '../components/Segmented';
 import { StatTitle } from '../components/StatTitle';
 import { CustomRangeForm } from '../components/CustomRangeForm';
 import { RefreshButton } from '../components/RefreshButton';
+import { HeatmapChart } from '../components/HeatmapChart';
 import { CHANNEL_OPTIONS } from '../lib/channels';
 import {
   RANGE_PRESETS,
@@ -51,6 +53,7 @@ export function Dashboard() {
   const timeseries = useTimeseries(filters);
   const products = useProducts(filters, 5);
   const operations = useOperations(filters);
+  const heatmap = useHeatmap(filters);
 
   // El mismo resumen, del periodo anterior de igual largo. Es otra queryKey,
   // asi que se cachea aparte y no pisa al actual.
@@ -231,6 +234,14 @@ export function Dashboard() {
         )}
         {summary.data && <FunnelChart funnel={summary.data.funnel} />}
       </div>
+
+      {heatmap.data && (
+        <div
+          className={`mt-4 transition-opacity ${heatmap.isPlaceholderData ? 'opacity-60' : ''}`}
+        >
+          <HeatmapChart heatmap={heatmap.data} />
+        </div>
+      )}
 
       {products.data && (
         <div

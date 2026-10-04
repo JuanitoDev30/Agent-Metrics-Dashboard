@@ -8,6 +8,7 @@ import type { DateRange } from '../lib/dates';
 import {
   ApiError,
   getJson,
+  type Heatmap,
   type Operations,
   type ProductStats,
   type Summary,
@@ -83,6 +84,20 @@ export function useOperations(filters: Filters) {
     queryFn: ({ signal }) =>
       getJson<Operations>(
         '/metrics/operations',
+        requireKey(),
+        filterParams(filters),
+        signal,
+      ),
+  });
+}
+
+export function useHeatmap(filters: Filters) {
+  return useQuery({
+    queryKey: ['metrics', 'heatmap', filters],
+    placeholderData: keepPreviousData,
+    queryFn: ({ signal }) =>
+      getJson<Heatmap>(
+        '/metrics/heatmap',
         requireKey(),
         filterParams(filters),
         signal,
