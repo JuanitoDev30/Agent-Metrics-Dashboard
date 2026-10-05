@@ -1,0 +1,75 @@
+@import 'tailwindcss';
+
+/*
+ * Colores por funcion, no por tono: el codigo dice `text-ink-secondary`, no
+ * `text-gray-600`. Asi el modo oscuro es cambiar estos valores y nada mas, y
+ * un componente nunca decide por su cuenta que gris usar.
+ *
+ * Tailwind v4 convierte cada --color-* en clases (bg-surface, text-ink,
+ * border-line...).
+ */
+@theme {
+  --color-surface: #f6f6f4;
+  --color-surface-raised: #ffffff;
+  --color-line: #e4e3df;
+  --color-ink: #0b0b0b;
+  --color-ink-secondary: #52514e;
+  --color-ink-muted: #75746f;
+  --color-accent: #2a78d6;
+  --color-danger: #c4312f;
+  --color-success: #1f7a3d;
+  /* Graficos. Validados: contraste y separacion para daltonismo. */
+  --color-series-1: #2a78d6;
+  --color-series-2: #eb6834;
+  --color-grid: #e1e0d9;
+  --color-axis: #c3c2b7;
+  /* Embudo: un solo tono, de claro a oscuro. La ultima etapa (el pedido)
+     es la mas marcada. Validado como escala ordinal en claro y oscuro. */
+  --color-funnel-1: #6da7ec;
+  --color-funnel-2: #3987e5;
+  --color-funnel-3: #256abf;
+  --color-funnel-4: #184f95;
+}
+
+/* El modo oscuro es su propia seleccion de valores, no una inversion
+   automatica: cada par se eligio para mantener el contraste sobre su fondo. */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-surface: #121211;
+    --color-surface-raised: #1a1a19;
+    --color-line: #2e2d2b;
+    --color-ink: #ffffff;
+    --color-ink-secondary: #c3c2b7;
+    --color-ink-muted: #9a998f;
+    --color-accent: #3987e5;
+    --color-danger: #e66767;
+    --color-success: #5cc98a;
+    --color-series-1: #3987e5;
+    --color-series-2: #d95926;
+    --color-grid: #2c2c2a;
+    --color-axis: #383835;
+    /* En oscuro se invierte: lo mas marcado es lo mas claro. */
+    --color-funnel-1: #256abf;
+    --color-funnel-2: #3987e5;
+    --color-funnel-3: #6da7ec;
+    --color-funnel-4: #9ec5f4;
+  }
+}
+
+:root {
+  color-scheme: light dark;
+  /* Inter primero (index.html la carga); si no llega, la del sistema. */
+  font-family: Inter, system-ui, 'Segoe UI', Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  @apply bg-surface text-ink;
+  margin: 0;
+}
+
+/* La tarjeta: un solo lugar para el aspecto de todas (indicadores, graficos,
+   listas). Cambiar el radio o la sombra aqui cambia el panel entero. */
+@utility card {
+  @apply rounded-xl border border-line bg-surface-raised p-5 shadow-sm;
+}
