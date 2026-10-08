@@ -12,6 +12,8 @@ import { useURLFilters } from '@/shared/filters/urlFilters';
 import { resolveRange } from '@/shared/lib/dates';
 import { formatDayRange } from '@/shared/lib/format';
 import { LoadState } from '@/shared/ui/LoadState';
+import { AlertBanner } from '@/features/operations/alerts/AlertBanner';
+import { useAlerts } from '@/shared/api/metrics';
 
 // La raiz del panel ya autenticado. No dibuja cifras: une el marco, los
 // filtros y la pagina de la seccion activa.
@@ -21,7 +23,8 @@ export function Dashboard() {
   const { selection, setSelection, channel, setChannel } = useURLFilters();
   const range = resolveRange(selection);
   const filters: Filters = { range, channel };
-
+  const alerts = useAlerts();
+  const openAlerts = alerts.data?.open ?? [];
   const current = sectionById(section);
   const { Page } = current;
 
@@ -36,7 +39,12 @@ export function Dashboard() {
   }
 
   return (
-    <AppShell section={section} onNavigate={navigate} onPrefetch={prefetch}>
+    <AppShell
+      section={section}
+      onNavigate={navigate}
+      onPrefetch={prefetch}
+      badges={{ operacion: openAlerts.length }}
+    >
       <PageHeader
         title={current.label}
         description={`${current.description} · ${formatDayRange(range.start, range.end)}`}
@@ -62,6 +70,7 @@ export function Dashboard() {
       </PageHeader>
 
       <main className="mx-auto max-w-6xl space-y-6 px-4 py-6 sm:px-6">
+        <AlertBanner alerts={openAlerts} />
         {/* Mientras llega el archivo de la pagina (solo la primera vez). */}
         <Suspense fallback={<LoadState isPending error={null} />}>
           <Page filters={filters} />

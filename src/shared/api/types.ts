@@ -11,3 +11,5 @@ export type ProductStats = Schemas['ProductStats'];
 export type Operations = Schemas['OperationsStats'];
 export type Heatmap = Schemas['Heatmap'];
 export type PanelSession = Schemas['PanelSession'];
+export type AlertsView = Schemas['AlertsView'];
+export type Alert = Schemas['Alert'];

@@ -6,6 +6,7 @@ import {
   productsQuery,
   summaryQuery,
   timeseriesQuery,
+  alertsQuery,
 } from '@/shared/api/metrics';
 import { previousFilters, type Filters } from '@/shared/filters/filters';
 
@@ -15,13 +16,21 @@ import { previousFilters, type Filters } from '@/shared/filters/filters';
 // mismo modulo ya cargado.
 const loaders = {
   resumen: () =>
-    import('@/features/summary/SummaryPage').then(m => ({ default: m.SummaryPage })),
+    import('@/features/summary/SummaryPage').then(m => ({
+      default: m.SummaryPage,
+    })),
   clientes: () =>
-    import('@/features/customers/CustomersPage').then(m => ({ default: m.CustomersPage })),
+    import('@/features/customers/CustomersPage').then(m => ({
+      default: m.CustomersPage,
+    })),
   productos: () =>
-    import('@/features/products/ProductsPage').then(m => ({ default: m.ProductsPage })),
+    import('@/features/products/ProductsPage').then(m => ({
+      default: m.ProductsPage,
+    })),
   operacion: () =>
-    import('@/features/operations/OperationsPage').then(m => ({ default: m.OperationsPage })),
+    import('@/features/operations/OperationsPage').then(m => ({
+      default: m.OperationsPage,
+    })),
 };
 
 // Las secciones del panel, en el orden del menu. El id es tambien la ruta:
@@ -74,6 +83,7 @@ export const SECTIONS = [
     preload: loaders.operacion,
     prefetch: (client: QueryClient, filters: Filters) => {
       void client.prefetchQuery(operationsQuery(filters));
+      void client.prefetchQuery(alertsQuery());
     },
   },
 ] as const;

@@ -115,7 +115,6 @@ export function formatTime(timestamp: number): string {
   return clock.format(timestamp);
 }
 
-
 const change = new Intl.NumberFormat(LOCALE, {
   style: 'percent',
   maximumFractionDigits: 0,
@@ -137,4 +136,46 @@ const dayRange = new Intl.DateTimeFormat(LOCALE, {
 // "4 de sept al 3 de oct de 2026", "20 de dic de 2025 al 5 de ene de 2026".
 export function formatDayRange(start: string, end: string): string {
   return dayRange.formatRange(parseIsoDate(start), parseIsoDate(end));
+}
+
+const relative = new Intl.RelativeTimeFormat(LOCALE, { numeric: 'auto' });
+
+// cuanto hace de un instante: 'hace 12 minutos', 'hace 3 horas',
+
+export function formatSince(iso: string, now: number = Date.now()): string {
+  const minutes = Math.round((new Date(iso).getTime() - now) / 60_000);
+
+  // Intl diria 'este minuto', que suena raro para algo que ya paso
+  if (minutes === 0) return 'hace un momento';
+  if (Math.abs(minutes) < 60) return relative.format(minutes, 'minute');
+  const hours = Math.round(minutes / 60);
+  if (Math.abs(hours) < 24) return relative.format(hours, 'hour');
+  return relative.format(Math.round(hours / 24), 'day');
+}
+
+// cuanto duro algo: '35 min', '1 h 20 min', '2 h 5 min'
+
+export function formatElapsed(fromIso: string, toIso: string): string {
+  const minutes = Math.max(
+    1,
+    Math.round(
+      (new Date(toIso).getTime() - new Date(fromIso).getTime()) / 60_000,
+    ),
+  );
+  if (minutes < 60) return `${minutes} min`;
+  const hours = Math.floor(minutes / 60);
+  const rest = minutes % 60;
+  return rest ? `${hours} h ${rest} min` : `${hours} h`;
+}
+
+const dateTime = new Intl.DateTimeFormat(LOCALE, {
+  day: 'numeric',
+  month: 'short',
+  hour: 'numeric',
+  minute: '2-digit',
+});
+
+// "8 de oct, 4:52 p. m.", en la hora del navegador.
+export function formatDateTime(iso: string): string {
+  return dateTime.format(new Date(iso));
 }

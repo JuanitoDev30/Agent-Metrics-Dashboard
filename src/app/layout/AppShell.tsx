@@ -8,12 +8,19 @@ type AppShellProps = {
   onNavigate: (id: SectionId) => void;
   // Adelantar codigo y datos de una seccion antes del clic.
   onPrefetch: (id: SectionId) => void;
+  badges?: Partial<Record<SectionId, number>>;
   children: ReactNode;
 };
 
 // El marco de todas las paginas: barra lateral en pantallas anchas, barra de
 // pestanas abajo en el celular. El contenido de cada seccion va en children.
-export function AppShell({ section, onNavigate, onPrefetch, children }: AppShellProps) {
+export function AppShell({
+  section,
+  onNavigate,
+  onPrefetch,
+  badges = {},
+  children,
+}: AppShellProps) {
   return (
     <div className="min-h-screen lg:grid lg:grid-cols-[15rem_1fr]">
       <aside className="sticky top-0 hidden h-screen flex-col border-r border-line bg-surface-raised px-3 py-5 lg:flex">
@@ -30,6 +37,7 @@ export function AppShell({ section, onNavigate, onPrefetch, children }: AppShell
             >
               <SectionIcon id={item.id} />
               {item.label}
+              <Badge count={badges[item.id]} className="ml-auto" />
             </NavLink>
           ))}
         </nav>
@@ -53,13 +61,32 @@ export function AppShell({ section, onNavigate, onPrefetch, children }: AppShell
             onPrefetch={onPrefetch}
             className="flex flex-col items-center gap-1 py-2 text-xs font-medium"
           >
-            <SectionIcon id={item.id} />
+            <span className="relative">
+              <SectionIcon id={item.id} />
+              <Badge
+                count={badges[item.id]}
+                className="absolute -top-1.5 -right-2.5"
+              />
+            </span>
             {/* "Clientes y horarios" no cabe en un cuarto de pantalla. */}
             {item.label.split(' ')[0]}
           </NavLink>
         ))}
       </nav>
     </div>
+  );
+}
+function Badge({ count, className }: { count?: number; className: string }) {
+  if (!count) return null;
+  return (
+    <span
+      className={`${className} grid min-w-5 place-items-center rounded-full bg-danger px-1.5 text-xs font-semibold leading-5 text-white`}
+    >
+      {count}
+      <span className="sr-only">
+        {count === 1 ? ' alerta abierta' : ' alertas abiertas'}
+      </span>
+    </span>
   );
 }
 
@@ -88,10 +115,18 @@ type NavLinkProps = {
 
 // Un enlace de verdad (<a href>), no un boton: se puede abrir en otra
 // pestana, copiar o compartir. El clic normal no recarga la pagina.
-function NavLink({ id, active, onNavigate, onPrefetch, className, children }: NavLinkProps) {
+function NavLink({
+  id,
+  active,
+  onNavigate,
+  onPrefetch,
+  className,
+  children,
+}: NavLinkProps) {
   function handleClick(event: MouseEvent<HTMLAnchorElement>) {
     // Ctrl/Cmd/Shift + clic: que el navegador haga lo suyo (pestana nueva).
-    if (event.metaKey || event.ctrlKey || event.shiftKey || event.button !== 0) return;
+    if (event.metaKey || event.ctrlKey || event.shiftKey || event.button !== 0)
+      return;
     event.preventDefault();
     onNavigate(id);
   }
